@@ -1,0 +1,16 @@
+<!-- Navbar with Employee on the Left and Login/Signup on the Right -->
+<nav class="navbar">
+  <div class="left-menu">
+    <h1>Employee Management App</h1>
+  </div>
+  <div class="right-menu">
+    <!-- Show Login and Signup links only if the user is not logged in -->
+    <a *ngIf="!isLoggedIn" routerLink="/login">Login</a>
+    <a *ngIf="!isLoggedIn" routerLink="/signup">Signup</a>
+    <!-- Show Logout link if the user is logged in -->
+    <a *ngIf="isLoggedIn" (click)="logout()">Logout</a> <!-- Logout link -->
+  </div>
+</nav>
+
+<!-- Displays routed components -->
+<router-outlet></router-outlet>

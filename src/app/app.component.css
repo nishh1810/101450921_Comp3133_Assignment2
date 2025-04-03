@@ -1,0 +1,30 @@
+/* Navbar Styling */
+.navbar {
+  background-color: #333;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.left-menu h1 {
+  color: white;
+  margin: 0;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.right-menu a {
+  color: white;
+  text-decoration: none;
+  margin-left: 15px;
+  font-size: 18px;
+}
+
+.navbar a:hover {
+  text-decoration: underline;
+}
+
+.right-menu a:active {
+  font-weight: bold;
+}

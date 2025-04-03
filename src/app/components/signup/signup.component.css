@@ -1,0 +1,92 @@
+/* Container styling */
+.form-container {
+  max-width: 400px;
+  margin: 30px auto;
+  padding: 30px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #ffffff;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Title styling */
+h2 {
+  text-align: center;
+  color: #333;
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+/* Form field containers */
+div {
+  margin-bottom: 20px;
+}
+
+/* Label styling */
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Input field styling */
+input {
+  width: 100%;
+  padding: 12px;
+  margin-top: 5px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+/* Input focus effect */
+input:focus {
+  border-color: #4caf50;
+  outline: none;
+}
+
+/* Button styling */
+button {
+  width: 100%;
+  padding: 12px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+/* Button hover effect */
+button:hover {
+  background-color: #45a049;
+}
+
+/* Button disabled state */
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Error messages styling */
+.error {
+  color: #e74c3c;
+  font-size: 13px;
+  margin-top: 5px;
+}
+
+/* Add some space between error messages */
+.error div {
+  margin-top: 5px;
+}
+
+/* Optional: Add a success message after submission */
+.success-message {
+  color: #2ecc71;
+  text-align: center;
+  margin-top: 20px;
+  font-size: 14px;
+}

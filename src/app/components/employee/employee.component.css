@@ -1,0 +1,89 @@
+.employee-container {
+    padding: 20px;
+    text-align: center;  /* Center-align the content inside the container */
+}
+
+h2 {
+    margin-bottom: 20px;  /* Add some space below the header */
+    font-size: 24px;      /* Optional: Increase the font size */
+    font-weight: bold;    /* Optional: Make the text bold */
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;  /* Add margin top to space out from the "Add Employee" button */
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+}
+
+th {
+    background-color: #f2f2f2;
+}
+
+button {
+    margin-right: 10px;
+    padding: 12px 20px; /* Increase padding for bigger buttons */
+    font-size: 16px;     /* Increase the font size */
+    border-radius: 5px;  /* Optional: Round the corners for a smoother look */
+    cursor: pointer;    /* Change cursor to pointer on hover */
+    transition: background-color 0.3s ease;  /* Add smooth hover effect */
+}
+
+button:hover {
+    opacity: 0.9; /* Optional: Slightly fade on hover */
+}
+
+button.btn-primary {
+    background-color: #007bff;
+    border: none;
+    color: white;
+    float: left;
+}
+
+button.btn-info {
+    background-color: #17a2b8;
+    border: none;
+    color: white;
+}
+
+button.btn-warning {
+    background-color: #ffc107;
+    border: none;
+    color: white;
+}
+
+button.btn-danger {
+    background-color: #dc3545;
+    border: none;
+    color: white;
+}
+form {
+    width: 100%;
+    max-width: 500px;
+    margin: 20px auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+  }
+  
+  .form-group {
+    margin-bottom: 15px;
+  }
+  
+  .form-group label {
+    font-weight: bold;
+  }
+  
+  .form-group input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+  
