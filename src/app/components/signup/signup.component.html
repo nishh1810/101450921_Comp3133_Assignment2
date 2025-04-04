@@ -4,11 +4,11 @@
       
       <!-- Name Input -->
       <div>
-        <label for="name">Full Name</label>
+        <label for="name">User Name</label>
         <input id="name" formControlName="name" type="text" />
         <div *ngIf="f['name'].touched && f['name'].invalid" class="error">
-          <div *ngIf="f['name'].errors?.['required']">Name is required.</div>
-          <div *ngIf="f['name'].errors?.['minlength']">Name must be at least 3 characters long.</div>
+          <div *ngIf="f['name'].errors?.['required']">UserName is required.</div>
+          <div *ngIf="f['name'].errors?.['minlength']">UserName must be at least 3 characters long.</div>
         </div>
       </div>
   

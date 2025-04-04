@@ -20,6 +20,8 @@ export class EmployeeComponent implements OnInit {
   newEmployee: Employee = new Employee();  // Create an instance of Employee with default values
   selectedEmployee: Employee | null = null; // For tracking the employee being updated or viewed
   employeeForm: Employee = new Employee(); // Initialize employeeForm with a default Employee instance
+  searchTerm: string = '';
+
 
   // Define the GraphQL query to get all employees
   GET_ALL_EMPLOYEES_QUERY = gql`
@@ -40,7 +42,6 @@ export class EmployeeComponent implements OnInit {
       }
     }
   `;
-
   // Define the GraphQL mutation to add a new employee
   ADD_EMPLOYEE_MUTATION = gql`
     mutation AddEmployee($first_name: String!, $last_name: String!, $email: String!) {
@@ -71,54 +72,22 @@ export class EmployeeComponent implements OnInit {
     }
   `;
 
-  // Define the GraphQL mutation to delete an employee
-  DELETE_EMPLOYEE_MUTATION = gql`
-    mutation DeleteEmployee($eid: String!) {
-      deleteEmployee(eid: $eid)
+  SEARCH_EMPLOYEES_QUERY = gql`
+  query SearchEmployee($designation: String, $department: String) {
+    searchEmployeeByDesignationOrDepartment(designation: $designation, department: $department) {
+      _id
+      first_name
+      last_name
+      email
+      gender
+      designation
+      department
+      salary
+      date_of_joining
     }
-  `;
+  }
+`;
 
-  // Define the GraphQL mutation to update an employee
-  UPDATE_EMPLOYEE_MUTATION = gql`
-    mutation UpdateEmployee(
-      $eid: String!,
-      $first_name: String!,
-      $last_name: String!,
-      $email: String!,
-      $gender: String!,
-      $designation: String!,
-      $salary: Float!,
-      $date_of_joining: String!,
-      $department: String!,
-      $employee_photo: String!
-    ) {
-      updateEmployee(
-        eid: $eid,
-        first_name: $first_name,
-        last_name: $last_name,
-        email: $email,
-        gender: $gender,
-        designation: $designation,
-        salary: $salary,
-        date_of_joining: $date_of_joining,
-        department: $department,
-        employee_photo: $employee_photo
-      ) {
-        _id
-        first_name
-        last_name
-        email
-        gender
-        designation
-        salary
-        date_of_joining
-        department
-        employee_photo
-        created_at
-        updated_at
-      }
-    }
-  `;
 
   constructor(private apollo: Apollo, private router: Router) {}
 
@@ -202,38 +171,73 @@ export class EmployeeComponent implements OnInit {
   // Method to update an existing employee
   submitEmployee(): void {
     if (this.selectedEmployee) {
-      const { _id, first_name, last_name, email, gender, designation, salary, date_of_joining, department, employee_photo } = this.employeeForm;
-
+      const { _id, first_name, last_name, email, gender, designation, salary, date_of_joining, department } = this.employeeForm;
+      const numericvalue = Number(salary);
+  
       this.apollo
         .mutate({
-          mutation: this.UPDATE_EMPLOYEE_MUTATION,
+          mutation: gql`
+            mutation UpdateEmployee(
+              $eid: ID!,
+              $first_name: String!,
+              $last_name: String!,
+              $email: String!,
+              $gender: String!,
+              $designation: String!,
+              $salary: Float!,
+              $date_of_joining: String!,
+              $department: String!
+            ) {
+              updateEmployee(
+                eid: $eid,
+                first_name: $first_name,
+                last_name: $last_name,
+                email: $email,
+                gender: $gender,
+                designation: $designation,
+                salary: $salary,
+                date_of_joining: $date_of_joining,
+                department: $department
+              ) {
+                _id
+                first_name
+                last_name
+                email
+                designation
+                salary
+                updated_at
+              }
+            }
+          `,
           variables: {
-            eid: _id,
-            first_name,
-            last_name,
-            email,
-            gender,
-            designation,
-            salary: salary,
-            date_of_joining,
-            department,
-            employee_photo
+            eid: _id.trim(), 
+            first_name, 
+            last_name, 
+            email, 
+            gender, 
+            designation, 
+            salary: numericvalue, 
+            date_of_joining, 
+            department
           }
         })
         .subscribe({
           next: (response: any) => {
-            console.log('Employee updated:', response.data.updatedEmployee);
+            console.log('Employee updated:', response.data.updateEmployee);
             this.fetchEmployees();
             this.showAddEmployeeForm = false;
             this.selectedEmployee = null;
           },
           error: (error) => {
             console.error('Error updating employee:', error);
+            if (error.networkError) console.error('Network error:', error.networkError);
+            if (error.graphQLErrors) console.error('GraphQL errors:', error.graphQLErrors);
             alert('Error updating employee');
           }
         });
     }
   }
+  
 
   // Method to add a new employee
   submitNewEmployee(): void {
@@ -263,29 +267,40 @@ export class EmployeeComponent implements OnInit {
     this.newEmployee = new Employee();
     this.employeeForm = { ...this.newEmployee };
   }
-
-  // Method to delete an employee
+  
   deleteEmployee(eid: string): void {
     const isValidObjectId = /^[a-fA-F0-9]{24}$/.test(eid);
-
+    console.log('Employee ID to delete:', eid);
+    
     if (!isValidObjectId) {
       alert('Invalid employee ID.');
       return;
     }
-
+  
     const confirmDelete = window.confirm('Are you sure you want to delete this employee?');
     if (confirmDelete) {
       console.log('Deleting employee with ID:', eid);
-
+      
       this.apollo
         .mutate({
-          mutation: this.DELETE_EMPLOYEE_MUTATION,
-          variables: { eid }
+          mutation: gql`
+          mutation DeleteEmployee($eid: ID!) {
+            deleteEmployee(eid: $eid)
+          }
+        `,
+        variables: { eid: eid.trim() }
         })
         .subscribe({
           next: (response: any) => {
-            console.log('Employee deleted:', response.data.deleteEmployee);
-            this.fetchEmployees();
+            console.log('Delete response received:', response);
+            
+            if (response.data.deleteEmployee) {
+              console.log('Employee deleted successfully');
+              this.fetchEmployees(); 
+            } else {
+              console.error('Delete failed: No confirmation from backend');
+              alert('Delete failed');
+            }
           },
           error: (error) => {
             console.error('Error deleting employee:', error);
@@ -293,5 +308,32 @@ export class EmployeeComponent implements OnInit {
           }
         });
     }
+  }
+  
+  searchEmployees(): void {
+    const value = this.searchTerm.trim();
+    
+    // If the search term is empty, fetch the full list
+    if (!value) {
+      this.fetchEmployees();
+      return;
+    }
+
+    this.apollo.query({
+      query: this.SEARCH_EMPLOYEES_QUERY,
+      variables: {
+        designation: value || null,
+        department: value || null
+      },
+      fetchPolicy: 'no-cache'
+    }).subscribe({
+      next: (response: any) => {
+        this.employees = response.data.searchEmployeeByDesignationOrDepartment || [];
+      },
+      error: (error) => {
+        console.error('Error searching employees:', error);
+        alert('Search failed');
+      }
+    });
   }
 }

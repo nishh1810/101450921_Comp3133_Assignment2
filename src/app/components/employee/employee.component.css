@@ -86,4 +86,23 @@ form {
     border-radius: 5px;
     border: 1px solid #ccc;
   }
+  .search-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 20px 0;
+  }
+  
+  .search-input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .search-btn {
+    padding: 8px 16px;
+    font-weight: 500;
+  }
+  
   

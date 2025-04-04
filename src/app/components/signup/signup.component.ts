@@ -64,9 +64,9 @@ export class SignupComponent {
       this.apollo.mutate({
         mutation: this.SIGNUP_MUTATION,
         variables: {
-          username: name,
-          email: email,
-          password: password
+          username: name.trim(),
+          email: email.trim(),
+          password: password.trim()
         }
       }).subscribe({
         next: (response) => {
