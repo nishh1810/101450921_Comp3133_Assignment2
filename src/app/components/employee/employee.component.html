@@ -50,18 +50,18 @@
     <div *ngIf="showViewEmployeeForm" class="mt-3">
       <h3>View Employee</h3>
       <p> Employee ID: {{ selectedEmployee?._id }}</p>
-      <form>
+      <form [formGroup]="employeeForm">
         <div class="form-group">
           <label for="first_name">First Name</label>
-          <input type="text" class="form-control" id="first_name" [(ngModel)]="employeeForm.first_name" name="first_name" disabled />
+          <input type="text" class="form-control" id="first_name" formControlName="first_name" [disabled]="true"  />
         </div>
         <div class="form-group">
           <label for="last_name">Last Name</label>
-          <input type="text" class="form-control" id="last_name" [(ngModel)]="employeeForm.last_name" name="last_name" disabled />
+          <input type="text" class="form-control" id="last_name" formControlName="last_name" [disabled]="true"  />
         </div>
         <div class="form-group">
           <label for="email">Email</label>
-          <input type="email" class="form-control" id="email" [(ngModel)]="employeeForm.email" name="email" disabled />
+          <input type="email" class="form-control" id="email" formControlName="email" [disabled]="true"  />
         </div>
         <button type="button" class="btn btn-secondary" (click)="showViewEmployeeForm = false">Close</button>
       </form>
@@ -71,24 +71,23 @@
     <div *ngIf="showAddEmployeeForm" class="mt-3">
       <h3>{{ selectedEmployee ? 'Update' : 'Add New' }} Employee</h3>
       <p> Employee ID: {{ selectedEmployee?._id }}</p>
-      <form (ngSubmit)="selectedEmployee ? submitEmployee() : submitNewEmployee()">
+      <form [formGroup]="employeeForm" (ngSubmit)="selectedEmployee ? submitEmployee() : submitNewEmployee()">
         <div class="form-group">
           <label for="first_name">First Name</label>
-          <input type="text" class="form-control" id="first_name" [(ngModel)]="employeeForm.first_name" name="first_name" required />
+          <input type="text" class="form-control" id="first_name" formControlName="first_name" required />
         </div>
         <div class="form-group">
           <label for="last_name">Last Name</label>
-          <input type="text" class="form-control" id="last_name" [(ngModel)]="employeeForm.last_name" name="last_name" required />
+          <input type="text" class="form-control" id="last_name" formControlName="last_name" required />
         </div>
         <div class="form-group">
           <label for="email">Email</label>
-          <input type="email" class="form-control" id="email" [(ngModel)]="employeeForm.email" name="email" required />
+          <input type="email" class="form-control" id="email" formControlName="email" required />
         </div>
   
-        <!-- Additional fields if necessary -->
         <div class="form-group">
           <label for="gender">Gender</label>
-          <select class="form-control" id="gender" [(ngModel)]="employeeForm.gender" name="gender">
+          <select class="form-control" id="gender" formControlName="gender">
             <option value="Male">Male</option>
             <option value="Female">Female</option>
           </select>
@@ -96,17 +95,29 @@
   
         <div class="form-group">
           <label for="designation">Designation</label>
-          <input type="text" class="form-control" id="designation" [(ngModel)]="employeeForm.designation" name="designation" />
+          <input type="text" class="form-control" id="designation" formControlName="designation" />
         </div>
   
         <div class="form-group">
           <label for="salary">Salary</label>
-          <input type="number" class="form-control" id="salary" [(ngModel)]="employeeForm.salary" name="salary" />
+          <input type="number" class="form-control" id="salary" formControlName="salary" />
         </div>
   
         <div class="form-group">
           <label for="department">Department</label>
-          <input type="text" class="form-control" id="department" [(ngModel)]="employeeForm.department" name="department" />
+          <input type="text" class="form-control" id="department" formControlName="department" />
+        </div>
+
+        <!-- Employee Photo Upload -->
+        <div *ngIf="!isUpdateMode" class="form-group">
+            <label for="employee_photo">Employee Photo (PNG, JPEG only)</label>
+            <input 
+            type="file" 
+            class="form-control" 
+            id="employee_photo" 
+            (change)="onFileSelected($event)" 
+            accept=".png, .jpeg, .jpg" 
+            name="employee_photo" />
         </div>
   
         <button type="submit" class="btn btn-success">{{ selectedEmployee ? 'Update' : 'Add' }}</button>

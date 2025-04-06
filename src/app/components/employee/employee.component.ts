@@ -3,25 +3,40 @@ import { Apollo } from 'apollo-angular';
 import { gql } from 'apollo-angular';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { Employee } from '../../model/Employee';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';  
 
 @Component({
   selector: 'app-employee',
   standalone: true,
   templateUrl: './employee.component.html',
   styleUrls: ['./employee.component.css'],
-  imports: [CommonModule, FormsModule]
+  imports: [CommonModule, FormsModule,ReactiveFormsModule]
 })
 export class EmployeeComponent implements OnInit {
   employees: Employee[] = [];
   showAddEmployeeForm: boolean = false;
-  showViewEmployeeForm: boolean = false;  // To control view mode
-  newEmployee: Employee = new Employee();  // Create an instance of Employee with default values
-  selectedEmployee: Employee | null = null; // For tracking the employee being updated or viewed
-  employeeForm: Employee = new Employee(); // Initialize employeeForm with a default Employee instance
+  showViewEmployeeForm: boolean = false;
+  selectedEmployee: Employee | null = null;
+  employeeForm: FormGroup;  // Reactive form for validation
   searchTerm: string = '';
+  selectedFile: File | null = null;
 
+  constructor(private apollo: Apollo, private router: Router, private fb: FormBuilder) {
+    // Initialize the form with validation rules
+    this.employeeForm = this.fb.group({
+      first_name: ['', [Validators.required, Validators.minLength(3)]],
+      last_name: ['', [Validators.required, Validators.minLength(3)]],
+      email: ['', [Validators.required, Validators.email]],
+      gender: ['Male', [Validators.required]],
+      designation: ['', [Validators.required]],
+      salary: ['', [Validators.required, Validators.min(0)]],
+      department: ['', [Validators.required]],
+      employee_photo: ['']  // This is the file input, not needed for validation
+    });
+  }
 
   // Define the GraphQL query to get all employees
   GET_ALL_EMPLOYEES_QUERY = gql`
@@ -44,16 +59,18 @@ export class EmployeeComponent implements OnInit {
   `;
   // Define the GraphQL mutation to add a new employee
   ADD_EMPLOYEE_MUTATION = gql`
-    mutation AddEmployee($first_name: String!, $last_name: String!, $email: String!) {
+    mutation AddEmployee($first_name: String!, $last_name: String!, $email: String!, $gender: String!, $designation: String!, 
+            $salary: Float!,
+            $department: String!) {
       addEmployee(
         first_name: $first_name,
         last_name: $last_name,
         email: $email,
-        gender: "Male",
-        designation: "Software Engineer",
-        salary: 5000.0,
+        gender: $gender,
+        designation: $designation,
+        salary: $salary,
         date_of_joining: "2024-02-06",
-        department: "IT",
+        department: $department,
         employee_photo: "john_doe.jpg"
       ) {
         _id
@@ -88,9 +105,6 @@ export class EmployeeComponent implements OnInit {
   }
 `;
 
-
-  constructor(private apollo: Apollo, private router: Router) {}
-
   ngOnInit(): void {
     this.fetchEmployees();
   }
@@ -115,9 +129,11 @@ export class EmployeeComponent implements OnInit {
   // Show the "Add Employee" form
   addEmployee(): void {
     this.selectedEmployee = null;
-    this.employeeForm = new Employee(); // Reset form to default values
+    this.employeeForm.reset();  // Reset form values
     this.showAddEmployeeForm = true;
     this.showViewEmployeeForm = false;
+
+    this.employeeForm.enable();
   }
 
   // Show the "Update Employee" form
@@ -138,10 +154,19 @@ export class EmployeeComponent implements OnInit {
         employeeToUpdate.created_at,
         employeeToUpdate.updated_at
       );
-      this.employeeForm = { ...this.selectedEmployee };
+      this.employeeForm.patchValue({
+        first_name: employeeToUpdate.first_name,
+        last_name: employeeToUpdate.last_name,
+        email: employeeToUpdate.email,
+        gender: employeeToUpdate.gender,
+        designation: employeeToUpdate.designation,
+        salary: employeeToUpdate.salary,
+        department: employeeToUpdate.department
+      });
       this.showAddEmployeeForm = true;
       this.showViewEmployeeForm = false;
     }
+    this.employeeForm.enable();
   }
 
   // Show the "View Employee" details
@@ -162,91 +187,105 @@ export class EmployeeComponent implements OnInit {
         employeeToView.created_at,
         employeeToView.updated_at
       );
-      this.employeeForm = { ...this.selectedEmployee };
+      this.employeeForm.patchValue({
+        first_name: employeeToView.first_name,
+        last_name: employeeToView.last_name,
+        email: employeeToView.email,
+        gender: employeeToView.gender,
+        designation: employeeToView.designation,
+        salary: employeeToView.salary,
+        department: employeeToView.department
+      });
       this.showAddEmployeeForm = false;
       this.showViewEmployeeForm = true;
+
+       // Disable all form controls for view mode
+      this.employeeForm.disable();
     }
   }
 
-  // Method to update an existing employee
+  // Submit form to update employee
   submitEmployee(): void {
-    if (this.selectedEmployee) {
-      const { _id, first_name, last_name, email, gender, designation, salary, date_of_joining, department } = this.employeeForm;
-      const numericvalue = Number(salary);
-  
-      this.apollo
-        .mutate({
-          mutation: gql`
-            mutation UpdateEmployee(
-              $eid: ID!,
-              $first_name: String!,
-              $last_name: String!,
-              $email: String!,
-              $gender: String!,
-              $designation: String!,
-              $salary: Float!,
-              $date_of_joining: String!,
-              $department: String!
-            ) {
-              updateEmployee(
-                eid: $eid,
-                first_name: $first_name,
-                last_name: $last_name,
-                email: $email,
-                gender: $gender,
-                designation: $designation,
-                salary: $salary,
-                date_of_joining: $date_of_joining,
-                department: $department
-              ) {
-                _id
-                first_name
-                last_name
-                email
-                designation
-                salary
-                updated_at
-              }
-            }
-          `,
-          variables: {
-            eid: _id.trim(), 
-            first_name, 
-            last_name, 
-            email, 
-            gender, 
-            designation, 
-            salary: numericvalue, 
-            date_of_joining, 
-            department
-          }
-        })
-        .subscribe({
-          next: (response: any) => {
-            console.log('Employee updated:', response.data.updateEmployee);
-            this.fetchEmployees();
-            this.showAddEmployeeForm = false;
-            this.selectedEmployee = null;
-          },
-          error: (error) => {
-            console.error('Error updating employee:', error);
-            if (error.networkError) console.error('Network error:', error.networkError);
-            if (error.graphQLErrors) console.error('GraphQL errors:', error.graphQLErrors);
-            alert('Error updating employee');
-          }
-        });
+    if (this.employeeForm.invalid) {
+      alert('Please fill all required fields correctly!');
+      return;
     }
-  }
-  
 
-  // Method to add a new employee
+    const { first_name, last_name, email, gender, designation, salary, department } = this.employeeForm.value;
+
+    const numericvalue = Number(salary);
+
+    this.apollo
+      .mutate({
+        mutation: gql`
+          mutation UpdateEmployee(
+            $eid: ID!,
+            $first_name: String!,
+            $last_name: String!,
+            $email: String!,
+            $gender: String!,
+            $designation: String!,
+            $salary: Float!,
+            $department: String!
+          ) {
+            updateEmployee(
+              eid: $eid,
+              first_name: $first_name,
+              last_name: $last_name,
+              email: $email,
+              gender: $gender,
+              designation: $designation,
+              salary: $salary,
+              department: $department
+            ) {
+              _id
+              first_name
+              last_name
+              email
+              designation
+              salary
+              updated_at
+            }
+          }
+        `,
+        variables: {
+          eid: this.selectedEmployee?._id?.trim(),
+          first_name, 
+          last_name, 
+          email, 
+          gender, 
+          designation, 
+          salary: numericvalue, 
+          department
+        }
+      })
+      .subscribe({
+        next: (response: any) => {
+          console.log('Employee updated:', response.data.updateEmployee);
+          this.fetchEmployees();
+          this.showAddEmployeeForm = false;
+          this.selectedEmployee = null;
+        },
+        error: (error) => {
+          console.error('Error updating employee:', error);
+          alert('Error updating employee');
+        }
+      });
+  }
+
+  // Submit form to add new employee
   submitNewEmployee(): void {
-    const { first_name, last_name, email } = this.employeeForm;
+    if (this.employeeForm.invalid) {
+      alert('Please fill all required fields correctly!');
+      return;
+    }
+
+    const { first_name, last_name, email, gender, designation, salary, department } = this.employeeForm.value;
 
     this.apollo
       .mutate({
         mutation: this.ADD_EMPLOYEE_MUTATION,
-        variables: { first_name, last_name, email }
+        variables: { first_name, last_name, email, gender, designation, salary, department }
       })
       .subscribe({
         next: (response: any) => {
@@ -262,25 +301,23 @@ export class EmployeeComponent implements OnInit {
       });
   }
 
-  // Reset form fields
+  // Reset form
   resetForm(): void {
-    this.newEmployee = new Employee();
-    this.employeeForm = { ...this.newEmployee };
+    this.employeeForm.reset();
+    this.selectedFile = null;
   }
-  
+
+  // Delete employee
   deleteEmployee(eid: string): void {
     const isValidObjectId = /^[a-fA-F0-9]{24}$/.test(eid);
-    console.log('Employee ID to delete:', eid);
-    
+
     if (!isValidObjectId) {
       alert('Invalid employee ID.');
       return;
     }
-  
+
     const confirmDelete = window.confirm('Are you sure you want to delete this employee?');
     if (confirmDelete) {
-      console.log('Deleting employee with ID:', eid);
-      
       this.apollo
         .mutate({
           mutation: gql`
@@ -288,32 +325,40 @@ export class EmployeeComponent implements OnInit {
             deleteEmployee(eid: $eid)
           }
         `,
-        variables: { eid: eid.trim() }
+        variables: { eid }
         })
         .subscribe({
           next: (response: any) => {
-            console.log('Delete response received:', response);
-            
             if (response.data.deleteEmployee) {
-              console.log('Employee deleted successfully');
-              this.fetchEmployees(); 
+              this.fetchEmployees();
             } else {
-              console.error('Delete failed: No confirmation from backend');
               alert('Delete failed');
             }
           },
           error: (error) => {
-            console.error('Error deleting employee:', error);
             alert(`Error deleting employee: ${error.message}`);
           }
         });
     }
   }
-  
+
+  // Handle file selection for employee photo
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input?.files?.length) {
+      const file = input.files[0];
+      if (file.type === 'image/png' || file.type === 'image/jpeg') {
+        this.selectedFile = file;
+      } else {
+        alert('Only PNG and JPEG files are allowed!');
+      }
+    }
+  }
+
+  // Search employees
   searchEmployees(): void {
     const value = this.searchTerm.trim();
     
-    // If the search term is empty, fetch the full list
     if (!value) {
       this.fetchEmployees();
       return;
@@ -331,9 +376,13 @@ export class EmployeeComponent implements OnInit {
         this.employees = response.data.searchEmployeeByDesignationOrDepartment || [];
       },
       error: (error) => {
-        console.error('Error searching employees:', error);
         alert('Search failed');
       }
     });
+  }
+
+  // Getter to hide employee photo during update
+  get isUpdateMode(): boolean {
+    return this.selectedEmployee !== null;
   }
 }
