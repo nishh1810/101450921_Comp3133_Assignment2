@@ -1,59 +1,53 @@
-# 101450921Comp3133Assignment2
+# 👩‍💼 Employee Management App (Angular + Apollo GraphQL)
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.3.
+The **Employee Management App** is a full-featured web application developed using **Angular** and **Apollo GraphQL**. It allows users to manage employee records with an intuitive UI and robust data-handling capabilities. Users can perform CRUD operations and filter employees using a smart, unified search bar.
 
-## Development server
+---
 
-To start a local development server, run:
+## 🚀 Features
 
-```bash
+- 🧑‍💼 **Employee Management**
+  - Create, view, update, and delete employee records.
+  - Form validation for inputs like name, email, department, and designation.
+
+- 🔍 **Unified Search**
+  - Single search textbox to filter employees by **department** or **designation**.
+
+- ⚡ **GraphQL Integration**
+  - Uses Apollo Client for Angular to interact with a GraphQL API.
+  - Real-time UI updates using reactive queries and mutations.
+
+- 🖥️ **Responsive UI**
+  - Built with Angular Material or Bootstrap (depending on your setup).
+  - Responsive across devices and screen sizes.
+
+- ✅ **Form Validation**
+  - Reactive forms with error handling and input validation.
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer        | Technology                     |
+|--------------|---------------------------------|
+| Frontend     | Angular                         |
+| GraphQL Client | Apollo Angular                 |
+| Backend API  | GraphQL (Apollo Server or any GraphQL backend) |
+| Styling      | Angular Material / Bootstrap    |
+| Language     | TypeScript                      |
+
+---
+
+## 📁 Project Structure
+
+src/ ├── app/ │ ├── components/ # Reusable components (employee list, form, etc.) │ ├── graphql/ # GraphQL queries and mutations │ ├── models/ # TypeScript interfaces │ ├── services/ # Employee data service using Apollo │ └── app.module.ts # Root Angular module## 🔧 Getting Started
+
+### 1. Clone the repository
+git clone https://github.com/nishh1810/EmployeeManagementApp_Angular.git
+cd employee-management-app
+### 2. Install the dependencies
+npm install
+### 3. Run the development server
 ng serve
-```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+### Go to Browser and Run
+http://localhost:4200/
